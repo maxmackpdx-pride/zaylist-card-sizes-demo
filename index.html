@@ -1,0 +1,581 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zaylist card sizes demo</title>
+<style>
+@font-face{font-family:"Barlow Condensed";font-weight:800;src:url(fonts/barlow-condensed-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:900;src:url(fonts/barlow-condensed-latin-900-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-weight:400;src:url(fonts/barlow-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-weight:600;src:url(fonts/barlow-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:500;src:url(fonts/jetbrains-mono-latin-500-normal.woff2) format("woff2")}
+:root{--z-oled:#000;--z-black:#050506;--ink-800:#0b0b0b;--text-hi:#fff;--text-mid:#b9bcc4;--neon-cyan:#00FFFF;--neon-magenta:#FF1FA0;--neon-orange:#FF7B00;--neon-violet:#7B00FF;--yellow:#FFDD00;--accent:#FF0000;--z-backdrop-tint:color-mix(in srgb,var(--z-oled) 55%,transparent);--z-backdrop-filter:blur(12px)}
+*{box-sizing:border-box}body{margin:0;background:var(--z-oled);color:var(--text-hi);font:400 15px/1.5 Barlow,system-ui,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:20px 14px 80px}
+h1,h2{font-family:"Barlow Condensed",sans-serif;font-weight:900;text-transform:uppercase;line-height:.9;letter-spacing:-.01em;margin:0 0 10px}
+h1{font-size:clamp(44px,12vw,84px)}h1 .cut{background:var(--text-hi);color:var(--z-oled);padding:0 .08em}
+h2{font-size:32px}.kick{font:500 11px/1.3 "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--neon-cyan);margin:0 0 6px}
+a{color:var(--neon-cyan)}code,pre{font-family:"JetBrains Mono",monospace}
+.note{border:1px solid color-mix(in srgb,var(--yellow) 55%,transparent);border-radius:12px;padding:10px 12px;color:var(--text-mid);margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid #222;padding:8px 6px;text-align:left;vertical-align:top}th{font:500 10px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mid)}
+.tbl{overflow-x:auto}
+section{margin:44px 0}.card-sec{border-top:1px solid #1d1d22;padding-top:26px}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:14px;margin:8px 0 16px}dt{color:var(--text-mid);font:500 11px/1.8 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.08em}dd{margin:0}
+dd{min-width:0;overflow-wrap:anywhere}@media(max-width:560px){dl{grid-template-columns:minmax(0,1fr)}dd{margin-bottom:6px}}
+.pair{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start}@media(max-width:860px){.pair{grid-template-columns:minmax(0,1fr)}}
+.shots{display:flex;flex-wrap:wrap;gap:12px}figure{margin:0;max-width:100%}figure img{display:block;max-width:100%;height:auto;border-radius:10px;border:1px solid #222;background:#000}figcaption{font-size:12px;color:var(--text-mid);margin-top:4px;max-width:390px}
+.code{min-width:0;border:1px solid #23232a;border-radius:12px;background:var(--ink-800);margin-bottom:12px;overflow:hidden}.code-h{overflow-wrap:anywhere;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid #23232a;font:500 11px "JetBrains Mono",monospace;color:var(--text-mid)}.code-h .br{color:var(--neon-orange)}
+pre{margin:0;padding:10px;font-size:11.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;max-height:460px;overflow:auto;color:#dfe3ea}.gh{overflow-wrap:anywhere;display:block;padding:8px 10px;font-size:12px;border-top:1px solid #23232a}
+/* animation demo */
+.demo{display:grid;grid-template-columns:minmax(0,390px) minmax(0,1fr);gap:18px;align-items:start}@media(max-width:860px){.demo{grid-template-columns:minmax(0,1fr)}}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.controls label{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border:1px solid #333;border-radius:999px;font:800 13px "Barlow Condensed";text-transform:uppercase;letter-spacing:.06em}
+.btn{min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--neon-cyan);background:#06090a;color:var(--neon-cyan);font:900 16px "Barlow Condensed";text-transform:uppercase;letter-spacing:.06em;box-shadow:0 0 0 1px #000,0 0 14px color-mix(in srgb,var(--neon-cyan) 8%,transparent);cursor:pointer}
+#stage{position:relative;width:100%;max-width:390px;aspect-ratio:390/760;border-radius:22px;overflow:hidden;border:1px solid #222;background:radial-gradient(120% 60% at 50% 0,#0d1320,#000 70%)}
+.board-row{position:absolute;left:14px;right:14px;top:70px;display:flex;gap:12px}.board-lbl{position:absolute;left:16px;top:30px;font:900 22px "Barlow Condensed";text-transform:uppercase}
+#tile{width:136px;border:1.5px solid color-mix(in srgb,var(--accent) 70%,#000);border-radius:6px;transform:rotate(-2deg);background:#000;padding:0;cursor:pointer;box-shadow:0 0 0 2px #000,0 0 7px color-mix(in srgb,var(--accent) 36%,transparent)}#tile img{display:block;width:100%;height:auto;border-radius:4px}
+.ghost{width:136px;height:176px;border-radius:6px;border:1px dashed #2a2a33;transform:rotate(1.5deg)}
+#backdrop{position:absolute;inset:0;background:var(--z-backdrop-tint);backdrop-filter:var(--z-backdrop-filter);-webkit-backdrop-filter:var(--z-backdrop-filter)}
+#sheet{position:absolute;left:0;right:0;top:12px;bottom:12px;margin:0 auto;width:min(620px,100%);border-radius:14px;overflow:hidden;background:var(--ink-800);border:1px solid color-mix(in srgb,var(--accent) 63%,#0a0a0e);box-shadow:0 0 0 2px var(--z-black),0 0 9px 1px color-mix(in srgb,var(--accent) 41%,transparent),0 0 18px color-mix(in srgb,var(--accent) 18%,transparent);transform-origin:center}#sheet img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+#sheet.tilebox{top:auto;height:58%;bottom:12px;left:10px;right:10px;width:auto;border-color:color-mix(in srgb,var(--neon-orange) 70%,#000)}
+#state{font:500 12px "JetBrains Mono",monospace;color:var(--text-mid);margin:8px 0}
+</style></head><body><main>
+<p class="kick">Zaylist · design review · generated Nov 21, 2026 12:41 AM PT</p>
+<h1>Card <span class="cut">sizes</span></h1>
+<p>Every Zaylist card family at each size it ships in, where it sits on the site, and the code it comes from. Live screenshots are from zaylist.com (master @ 22feb3b1). Yes Coach, Ridez, drawer and Afterz shots are the existing review screenshots from PR #115, #116 and #117, unchanged. Code excerpts are copied verbatim from GitHub (long minified lines are cut and end with …).</p>
+<div class="note">Nothing in the repo was changed. PR #115 (event-card-open-sheet @ aa73a48b), PR #116 (placez-events-drawers @ 0213d115) and PR #117 (outzide-afterz-drawers @ 74dc418c) are not live yet. People, hosts and ride counts in the Ridez and Afterz shots are example data.</div>
+<section id="sizes"><h2>Size summary</h2><div class="tbl"><table><thead><tr><th>Card</th><th>Declared size</th><th>Status</th><th>Compiler</th></tr></thead><tbody><tr><td><a href="#api">Card API size contract</a><br><small>All families</small></td><td>tall 200x403, wide 360x216, small 136x170 (+ event square 1:1)</td><td>Live (master)</td><td>On</td></tr><tr><td><a href="#eventz-poster">Eventz board flyer (poster cell)</a><br><small>Eventz</small></td><td>Width var(--pw): 168px base, 264px and clamp(216px, 65vw, 296px) at breakpoints; height follows the flyer aspect</td><td>Live (master); Yes Coach shots are PR #115</td><td>On</td></tr><tr><td><a href="#event-tall">Event tall / wide faces (TonightEventCard)</a><br><small>Eventz</small></td><td>tall 200x403 (--event-card-width/height); wide 360x216 (layout=&quot;row&quot;)</td><td>Live code (master)</td><td>On</td></tr><tr><td><a href="#event-square">Event square card</a><br><small>Eventz</small></td><td>1:1 (width 100%, aspect-ratio 1/1)</td><td>Live code (master)</td><td>Off</td></tr><tr><td><a href="#expanded">Expanded event card (open sheet)</a><br><small>Eventz</small></td><td>width min(620px, 100%); height min(768px, 100dvh - 16px); radius 14px</td><td>PR #115 (not live yet)</td><td>On</td></tr><tr><td><a href="#carpool">Carpool rail card (wide-short)</a><br><small>Ridez</small></td><td>248x124</td><td>PR #115</td><td>On</td></tr><tr><td><a href="#rideneed">Needs a ride card (wide-short)</a><br><small>Ridez</small></td><td>248x124 (same frame as carpool)</td><td>PR #115</td><td>On</td></tr><tr><td><a href="#rail-small">Event rail small cards (Mizzed, Gigz, Nearby)</a><br><small>Boardz / Placez in rails</small></td><td>small 136x170 (--card-small-width/height)</td><td>PR #115</td><td>On</td></tr><tr><td><a href="#placez">Placez small and wide-map cards</a><br><small>Placez</small></td><td>small 136x170; wide-map 360x216</td><td>Live (master)</td><td>On</td></tr><tr><td><a href="#scenez">Scenez small card</a><br><small>Scenez</small></td><td>small 136x170</td><td>Live (master)</td><td>On</td></tr><tr><td><a href="#outz">Outzide small and wide cards</a><br><small>Outzide</small></td><td>small 136x170; wide 360x216; tall 200x403; square 250x250</td><td>Live (master)</td><td>On</td></tr><tr><td><a href="#boardz">Boardz small card</a><br><small>Boardz</small></td><td>small 136px wide in the grid</td><td>Live (master)</td><td>On</td></tr><tr><td><a href="#needz">Needz resource card</a><br><small>Needz</small></td><td>350px wide, height from content</td><td>Live (master)</td><td>Off</td></tr><tr><td><a href="#drawer-mini">Drawer mini card (In View rail)</a><br><small>Drawers</small></td><td>148x96</td><td>PR #116 (not live yet)</td><td>On</td></tr><tr><td><a href="#afterz">Afterz wide card</a><br><small>Afterz</small></td><td>width 100%; height 112 to 160px; yellow bloom</td><td>PR #117 (not live yet)</td><td>On</td></tr></tbody></table></div></section>
+<section id="animation"><p class="kick">Expanded animation · replayable</p><h2>Open and close the Yes Coach card</h2>
+<div class="demo"><div>
+<div class="controls" role="radiogroup" aria-label="Animation"><label><input type="radio" name="mode" value="flip" checked> PR #115 flip and grow</label><label><input type="radio" name="mode" value="morph"> Live master morph</label><label><input type="radio" name="mode" value="grow"> Tile grow (panels)</label></div>
+<div class="controls" role="radiogroup" aria-label="Speed"><label><input type="radio" name="speed" value="1" checked> 1x</label><label><input type="radio" name="speed" value="4"> Slow motion 4x</label></div>
+<button class="btn" id="play" type="button">Open card</button><p id="state">Closed. Tap the Yes Coach flyer or the button.</p>
+<div id="stage"><div class="board-lbl">Plan ahead</div><div class="board-row"><button id="tile" type="button" aria-label="Open Yes Coach: 3-Year Anniversary"><img src="img/yescoach-poster-sm.jpg" alt="Yes Coach flyer, Sun Nov 29, Sanctuary Club"></button></div>
+<div id="backdrop" hidden></div><div id="sheet" hidden><img src="img/yescoach-v9-tab-info-top.jpg" alt="Yes Coach expanded card, Info tab (PR #115 screenshot)"></div></div>
+</div><div>
+<p>Timing comes straight from the code. PR #115 opens with <code>flipIn</code>: 420ms, <code>cubic-bezier(.16, 1, .3, 1)</code>, rotateY -90deg to -28deg at 55% to flat, scaled from the tapped card's rect. Close is <code>flipOut</code>: 360ms, <code>cubic-bezier(.55, 0, .7, .2)</code>, rotateY to 90deg. Panels from the button tiles use <code>growIn</code> (380ms, no flip). The backdrop is <code>--z-backdrop-tint</code> (OLED at 55%) with a 12px blur. Live master uses a React 19 View Transition morph: 280ms group, <code>cubic-bezier(0.2, 0.8, 0.2, 1)</code>, 180ms crossfade; this demo replays it with the same numbers via the Web Animations API. Reduced motion falls back to the code's short fade.</p>
+<p>The expanded sheet here is the real PR #115 screenshot inside the real <code>.evz-x</code> frame tokens (accent #FF0000 from the Yes Coach flyer).</p>
+<div class="code"><div class="code-h"><span>client/src/components/cards/flipCard.ts</span><span class="br">event-card-open-sheet</span></div>
+<pre>const EASE_OPEN = &quot;cubic-bezier(.16, 1, .3, 1)&quot;;
+const EASE_CLOSE = &quot;cubic-bezier(.55, 0, .7, .2)&quot;;
+export const FLIP_MS = 420;
+
+/** Grow from the tapped card while turning over (back face -&gt; front). */
+export function flipIn(el: HTMLElement | null, origin?: OriginRect | null): Animation | null {
+  if (!el || typeof el.animate !== &quot;function&quot;) return null;
+  if (cardMotionOff() || !origin || !origin.width) {
+    return el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: cardMotionOff() ? 160 : 220, easing: &quot;ease-out&quot; });
+  }
+  const { sx, sy, dx, dy } = delta(el, origin);
+  return el.animate([
+    { transform: `perspective(1100px) translate(${dx}px, ${dy}px) scale(${sx}, ${sy}) rotateY(-90deg)`, opacity: 0.4 },
+    { transform: `perspective(1100px) translate(${dx * 0.35}px, ${dy * 0.35}px) scale(${(sx + 2) / 3}, ${(sy + 2) / 3}) rotateY(-28deg)`, opacity: 1, offset: 0.55 },
+    { transform: &quot;perspective(1100px) none&quot;, opacity: 1 },
+  ], { duration: FLIP_MS, easing: EASE_OPEN });
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/event-card-open-sheet/client/src/components/cards/flipCard.ts#L25">Open on GitHub: client/src/components/cards/flipCard.ts (event-card-open-sheet)</a></div><div class="code"><div class="code-h"><span>client/src/components/cards/react19Card.css</span><span class="br">master</span></div>
+<pre>::view-transition-group(.zay-card-morph) {
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-old(.zay-card-morph),
+::view-transition-new(.zay-card-morph) {
+  animation-duration: 180ms;
+  height: 100%;
+  overflow: clip;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/cards/react19Card.css#L2">Open on GitHub: client/src/components/cards/react19Card.css (master)</a></div>
+</div></div></section>
+<section id="api" class="card-sec">
+<p class="kick">All families · Live (master)</p><h2>Card API size contract</h2>
+<dl><dt>Declared size</dt><dd>tall 200x403, wide 360x216, small 136x170 (+ event square 1:1)</dd><dt>Measured</dt><dd>Fixed px; never scale (guarded by cards-fixed-size.test.ts)</dd><dt>Where on the site</dt><dd>Shared by every card family. EventCard, PlaceCard, OutzCard, BoardCard and NeedzCard pick a face by size.</dd><dt>Component</dt><dd><code>client/src/components/cards/cardLayout.ts, CardAPI.css, EventCard.tsx, OutzCard.tsx</code></dd><dt>React 19 + Compiler</dt><dd>EventCard.tsx and BoardCard.tsx are in compiler scope (&quot;use memo&quot;). Shared CardAPI.tsx stays uncompiled by design.</dd></dl>
+<div class="pair"><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/cards/cardLayout.ts</span><span class="br">master</span></div>
+<pre>export const CARD_SIZES = {
+  tall: { width: 200, height: 403 },
+  wide: { width: 360, height: 216 },
+  small: { width: 136, height: 170 },
+} as const;
+export type CardSize = keyof typeof CARD_SIZES;
+
+/* CardAPI.css */
+:root{--card-tall-width:200px;--card-tall-height:403px;--card-wide-width:360px;--card-wide-height:216px;--card-small-width:136px;--card-small-height:170px}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/cards/cardLayout.ts#L2">Open on GitHub: client/src/components/cards/cardLayout.ts (master)</a></div><div class="code"><div class="code-h"><span>client/src/components/cards/EventCard.tsx</span><span class="br">master</span></div>
+<pre>export function EventCard({size=&#x27;tall&#x27;,...props}:Omit&lt;TonightEventCardProps,&#x27;layout&#x27;&gt; &amp; {size?:CardSize | &#x27;square&#x27;}) {
+ &quot;use memo&quot;;
+ if(size===&#x27;small&#x27;)return &lt;EventRailCard listing={props.listing} size=&quot;s&quot; saved={props.rsvped} liveState={props.liveState} onToggleSave={props.onToggleRsvp} onOpen={props.onOpen}/&gt; …
+ if(size===&#x27;square&#x27;)return &lt;EventSquareCard listing={props.listing} saved={props.rsvped} liveState={props.liveState} onToggleSave={props.onToggleRsvp} onOpen={props.onOpen}/&gt;;
+ return &lt;TonightEventCard {...props} layout={size===&#x27;wide&#x27;?&#x27;row&#x27;:&#x27;card&#x27;}/&gt;;
+}
+</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/cards/EventCard.tsx#L5">Open on GitHub: client/src/components/cards/EventCard.tsx (master)</a></div><div class="code"><div class="code-h"><span>client/src/components/cards/OutzCard.tsx</span><span class="br">master</span></div>
+<pre>export function OutzCard({ location, size = &#x27;tall&#x27;, onRequireAuth }: {
+ location: TodayLocation; size?: CardSize; onRequireAuth?: () =&gt; void;
+}) {
+ if (size === &#x27;small&#x27;) return &lt;OutzSmallCard location={location} onRequireAuth={onRequireAuth}/&gt;;
+ if (size === &#x27;wide&#x27;) return &lt;OutzWideCard onRequireAuth={onRequireAuth} place={{id:location.key.replace(/^outz:/,&#x27;&#x27;),name:location.name,kind:location.kind || &#x27;trail&#x27;,region:locati …
+ return &lt;TodayLocationCard location={location} onRequireAuth={onRequireAuth}/&gt;;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/cards/OutzCard.tsx#L6">Open on GitHub: client/src/components/cards/OutzCard.tsx (master)</a></div></div></div>
+</section><section id="eventz-poster" class="card-sec">
+<p class="kick">Eventz · Live (master); Yes Coach shots are PR #115</p><h2>Eventz board flyer (poster cell)</h2>
+<dl><dt>Declared size</dt><dd>Width var(--pw): 168px base, 264px and clamp(216px, 65vw, 296px) at breakpoints; height follows the flyer aspect</dd><dt>Measured</dt><dd>177px cell on a 390px phone (poster 182 to 188 wide, tilted by --rot)</dd><dt>Where on the site</dt><dd>Eventz page (/events): Happening Now rail, Happening This Weekend rail, Plan Ahead board</dd><dt>Component</dt><dd><code>client/src/components/events/EventFlyerFront.tsx (PosterCell) inside FlyerBoard.tsx</code></dd><dt>React 19 + Compiler</dt><dd>On (React Compiler, infer mode, master): FlyerBoard, EventFlyerFront, EventFlyerArt. Events.tsx page: annotation mode.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/live-eventz-now-poster.jpg" width="197" height="214" loading="lazy" alt="Live zaylist.com, Eventz Happening Now (first card)"><figcaption>Live zaylist.com, Eventz Happening Now (first card)</figcaption></figure><figure><img src="img/live-eventz-weekend-rail.jpg" width="390" height="283" loading="lazy" alt="Live zaylist.com, Happening This Weekend rail"><figcaption>Live zaylist.com, Happening This Weekend rail</figcaption></figure><figure><img src="img/yescoach-v9-front-board.jpg" width="390" height="844" loading="lazy" alt="PR #115: Yes Coach (Nov 29, Sanctuary Club) on the Eventz board"><figcaption>PR #115: Yes Coach (Nov 29, Sanctuary Club) on the Eventz board</figcaption></figure><figure><img src="img/yescoach-v9-front-flow-board-mobile.jpg" width="390" height="808" loading="lazy" alt="PR #115: Yes Coach in the Plan Ahead flow board"><figcaption>PR #115: Yes Coach in the Plan Ahead flow board</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/events/EventFlyerFront.tsx</span><span class="br">master</span></div>
+<pre>      &lt;article
+        ref={articleRef}
+        className={`poster att-${pinned ? &quot;pin&quot; : &quot;tape&quot;}${tear ? &quot; torn&quot; : &quot;&quot;}${poster ? &quot;&quot; : &quot; noart&quot;}${wideChunk ? &quot; chunk&quot; : &quot;&quot;} pdx-glass-rebind`}
+        style={
+          {
+            &quot;--a&quot;: accent,
+            &quot;--tc&quot;: dayColor,
+            &quot;--rot&quot;: `${rot}deg`,
+            ...(tear ? { &quot;--clip&quot;: tear.clip, &quot;--clip2&quot;: tear.clip2 } : {}),
+          } as CSSProperties
+        }
+        role=&quot;button&quot;
+        tabIndex={0}
+        aria-label={`Open ${listing.title}`}
+        data-event-id={listing.id}
+        data-event-date={dateStr}
+
+/* FlyerBoard.css */
+.fbx .rail .cell {
+  flex: none;
+  width: var(--pw);
+  position: relative;
+  margin-left: -9px;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/events/EventFlyerFront.tsx#L350">Open on GitHub: client/src/components/events/EventFlyerFront.tsx (master)</a></div></div></div>
+</section><section id="event-tall" class="card-sec">
+<p class="kick">Eventz · Live code (master)</p><h2>Event tall / wide faces (TonightEventCard)</h2>
+<dl><dt>Declared size</dt><dd>tall 200x403 (--event-card-width/height); wide 360x216 (layout=&quot;row&quot;)</dd><dt>Measured</dt><dd>Fixed</dd><dt>Where on the site</dt><dd>Card API face via EventCard size=&quot;tall&quot; | &quot;wide&quot;. On master no route mounts TonightPanel; the same 200x403 frame is used by the Outzide Featured grid (TodayLocationCard).</dd><dt>Component</dt><dd><code>client/src/components/home/TonightEventCard.tsx</code></dd><dt>React 19 + Compiler</dt><dd>On (React Compiler, infer mode, master): TonightEventCard.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/yescoach-v9-front-now-rail-mobile.jpg" width="259" height="307" loading="lazy" alt="PR #115: Yes Coach front in the Now rail"><figcaption>PR #115: Yes Coach front in the Now rail</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/home/TonightEventCard.tsx</span><span class="br">master</span></div>
+<pre>export default function TonightEventCard({ event, listing, rsvped, onToggleRsvp, onOpen, liveState, layout = &quot;card&quot; }: TonightEventCardProps) {
+  const [saved, setSaved] = useOptimistic(rsvped, nextOptimisticFlag);
+  // Saved cards show what moved since you saved them (last two weeks).
+  const changedAt = listing.lastChangeAt ? Date.parse(listing.lastChangeAt) : NaN;
+
+/* TonightPanel.css */
+.home-tonight__item .tonight-card.tonight-card--card {
+  width: var(--event-card-width);
+  height: var(--event-card-height);
+  max-width: none;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/home/TonightEventCard.tsx#L114">Open on GitHub: client/src/components/home/TonightEventCard.tsx (master)</a></div></div></div>
+</section><section id="event-square" class="card-sec">
+<p class="kick">Eventz · Live code (master)</p><h2>Event square card</h2>
+<dl><dt>Declared size</dt><dd>1:1 (width 100%, aspect-ratio 1/1)</dd><dt>Measured</dt><dd>Fills its grid track</dd><dt>Where on the site</dt><dd>Card API face via EventCard size=&quot;square&quot;</dd><dt>Component</dt><dd><code>client/src/components/events/EventSquareCard.tsx</code></dd><dt>React 19 + Compiler</dt><dd>Off: EventSquareCard is not in the compiler scope list.</dd></dl>
+<div class="pair"><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/events/EventSquareCard.tsx</span><span class="br">master</span></div>
+<pre>    &lt;article data-card-size=&quot;square&quot; data-card-category={&quot;eventz&quot;} onClickCapture={rememberCardOrigin} className=&quot;event-square-card pdx-glass-rebind&quot; style={{ &quot;--c&quot;: flyerAccent ?? …
+      &lt;button type=&quot;button&quot; className=&quot;event-square-card__open&quot; onClick={() =&gt; onOpen(listing)} aria-label={`Open ${listing.title}`}&gt;
+        &lt;span className=&quot;event-square-card__art&quot;&gt;
+          &lt;EventFlyerArt src={poster} day={listingDay(listing)} showDay={false} title={listing.title} venueName={listing.venueName} parallax /&gt;
+          &lt;CardArtworkGlass /&gt;
+          &lt;span className=&quot;event-square-card__shade&quot;&gt;&lt;span className=&quot;event-square-card__title&quot;&gt;{listing.title}&lt;/span&gt;&lt;span className=&quot;event-square-card__meta&quot;&gt;{eventTimeLabel(list …
+
+/* EventSquareCard.css */
+.event-square-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--ink-800);
+  border: 1px solid color-mix(in srgb, var(--c) 55%, var(--evz-ink-0a0e12));
+  box-shadow: 0 0 0 2px var(--z-black), 0 0 7px 1px color-mix(in srgb, var(--c) 36%, transparent), 0 0 14px color-mix(in srgb, var(--c) 16%, transparent);
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/events/EventSquareCard.tsx#L69">Open on GitHub: client/src/components/events/EventSquareCard.tsx (master)</a></div></div></div>
+</section><section id="expanded" class="card-sec">
+<p class="kick">Eventz · PR #115 (not live yet)</p><h2>Expanded event card (open sheet)</h2>
+<dl><dt>Declared size</dt><dd>width min(620px, 100%); height min(768px, 100dvh - 16px); radius 14px</dd><dt>Measured</dt><dd>Full phone width under the top bar, bottom edge meets the dock</dd><dt>Where on the site</dt><dd>Opens from any Eventz card. Sheet sits in CardStage over a 12px blur.</dd><dt>Component</dt><dd><code>client/src/components/events/OpenEventCard.tsx + cards/CardStage.tsx + events/EventzExpanded.css</code></dd><dt>React 19 + Compiler</dt><dd>On in PR #115: OpenEventCard, EventFeedChat, FlyerViewer, OpenCardShare, EventFormCards, ActionSheetCard, ExpandingActionPanel, FormCard, cardLogo.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/yescoach-v9-tab-info-top.jpg" width="390" height="844" loading="lazy" alt="Yes Coach expanded, Info tab"><figcaption>Yes Coach expanded, Info tab</figcaption></figure><figure><img src="img/yescoach-v9-tab-feed.jpg" width="390" height="844" loading="lazy" alt="Feed tab"><figcaption>Feed tab</figcaption></figure><figure><img src="img/yescoach-v9-tab-people.jpg" width="390" height="844" loading="lazy" alt="People tab"><figcaption>People tab</figcaption></figure><figure><img src="img/yescoach-v9-tab-maps.jpg" width="390" height="844" loading="lazy" alt="Maps tab"><figcaption>Maps tab</figcaption></figure><figure><img src="img/yescoach-v9-tab-nearby.jpg" width="390" height="844" loading="lazy" alt="Nearby tab"><figcaption>Nearby tab</figcaption></figure><figure><img src="img/yescoach-v9-tab-more.jpg" width="390" height="844" loading="lazy" alt="More tab"><figcaption>More tab</figcaption></figure><figure><img src="img/yescoach-v9-panel-closed-last-tile-dot.jpg" width="390" height="844" loading="lazy" alt="Button tiles row"><figcaption>Button tiles row</figcaption></figure><figure><img src="img/yescoach-v9-sheet-ridez.jpg" width="390" height="844" loading="lazy" alt="Ridez panel open"><figcaption>Ridez panel open</figcaption></figure><figure><img src="img/yescoach-v9-sheet-directions.jpg" width="390" height="844" loading="lazy" alt="Directions panel open"><figcaption>Directions panel open</figcaption></figure><figure><img src="img/yescoach-v9-sheet-afterz.jpg" width="390" height="844" loading="lazy" alt="Afterz panel open"><figcaption>Afterz panel open</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/events/OpenEventCard.tsx</span><span class="br">event-card-open-sheet</span></div>
+<pre>    void flipOut(cardEl.current, originRect, fromY).then(() =&gt; { onClose(); if (after) afterRouteSettles(after); });
+  useLayoutEffect(() =&gt; { flipIn(cardEl.current, originRect); haptic(8); }, []);
+      &lt;CardStage className=&quot;fbx oevent&quot; onClose={() =&gt; requestClose()}&gt;
+
+/* EventzExpanded.css */
+.evz-x {
+  --ac: var(--c, var(--neon-magenta));
+  --evz-top-offset: 471px;
+  --evz-bottom-offset: 118px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: min(768px, calc(100dvh - 16px));
+  background: var(--ink-800);
+  color: var(--text-hi);
+  border: 1px solid color-mix(in srgb, var(--ac) 63%, var(--evz-ink-0a0a0e));
+  border-radius: 14px;
+  box-shadow: 0 0 0 2px var(--z-black), 0 0 9px 1px color-mix(in srgb, var(--ac) 41%, transparent), 0 0 18px color-mix(in srgb, var(--ac) 18%, transparent);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* CardStage.css */
+.zay-card-stage--expanded &gt; :is(.evz-x,
+.scene-native-dialog,
+.outz-native-dialog,
+.placez-native-overlay) {
+  position: relative;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  width: min(620px, 100%);
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  border-radius: 14px;
+  overflow: hidden;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/event-card-open-sheet/client/src/components/events/OpenEventCard.tsx#L266">Open on GitHub: client/src/components/events/OpenEventCard.tsx (event-card-open-sheet)</a></div><div class="code"><div class="code-h"><span>client/src/components/cards/CardStage.tsx</span><span class="br">event-card-open-sheet</span></div>
+<pre>  return createPortal(
+    &lt;div ref={frame} className={`zay-card-stage ${front ? &#x27;zay-card-stage--front&#x27; : &#x27;zay-card-stage--expanded&#x27;} ${className}`}
+      onClick={event =&gt; { if (event.target === event.currentTarget) onClose(); }}&gt;
+      &lt;BoardCardInline.Provider value={false}&gt;{children}&lt;/BoardCardInline.Provider&gt;
+    &lt;/div&gt;, document.body);
+
+/* CardStage.css */
+.zay-card-stage, .zay-card-stage.fbx {
+  position: fixed;
+  inset: var(--card-stage-top, 0px) 0 var(--card-stage-bottom, 0px);
+  z-index: 3010;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  box-sizing: border-box;
+  background: var(--z-backdrop-tint);
+  backdrop-filter: var(--z-backdrop-filter);
+  -webkit-backdrop-filter: var(--z-backdrop-filter);
+}
+
+/* ds/tokens/effects.css */
+  --z-backdrop-blur: 12px;
+  --z-backdrop-tint: color-mix(in srgb, var(--z-oled) 55%, transparent);
+  --z-backdrop-filter: blur(var(--z-backdrop-blur));</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/event-card-open-sheet/client/src/components/cards/CardStage.tsx#L51">Open on GitHub: client/src/components/cards/CardStage.tsx (event-card-open-sheet)</a></div></div></div>
+</section><section id="carpool" class="card-sec">
+<p class="kick">Ridez · PR #115</p><h2>Carpool rail card (wide-short)</h2>
+<dl><dt>Declared size</dt><dd>248x124</dd><dt>Measured</dt><dd>248x124</dd><dt>Where on the site</dt><dd>Expanded event card, Ridez panel, Carpools rail (ARRIVING / DEPARTING tag on top)</dd><dt>Component</dt><dd><code>client/src/components/events/EventRailCards.tsx (CarpoolRailCard) + ridez/ridez.css</code></dd><dt>React 19 + Compiler</dt><dd>On in PR #115: EventRailCards (EventRailCard, CarpoolRailCard), rideBrands.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/yescoach-v9-panel-ridez-carpool-rail.jpg" width="356" height="236" loading="lazy" alt="Carpools rail with Offer / Need buttons and circle toggle. People are example data."><figcaption>Carpools rail with Offer / Need buttons and circle toggle. People are example data.</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/events/EventRailCards.tsx</span><span class="br">event-card-open-sheet</span></div>
+<pre>export function CarpoolRailCard({ ride, onOpen }: { ride: PlanRide; onOpen: (el: HTMLElement) =&gt; void }) {
+  const tag = rideDirection(ride);
+  const who = ride.driver || &quot;member&quot;;
+  const seats = typeof ride.remaining === &quot;number&quot; ? ride.remaining : null;
+  const leave = typeof ride.plan?.leaveBy === &quot;number&quot; ? rideClock(ride.plan.leaveBy) : null;
+  return (
+    &lt;div className=&quot;orailcard orailcard--carpool&quot; data-card-category=&quot;carpool&quot; data-tag={tag}&gt;
+      &lt;span className=&quot;orailcard-tag&quot;&gt;{tag}&lt;/span&gt;
+      &lt;button type=&quot;button&quot; className=&quot;ocarpool&quot; data-card-size=&quot;wide-short&quot; data-ride-id={ride.id}
+        aria-label={`${tag === &quot;ARRIVING&quot; ? &quot;Carpool to the event&quot; : &quot;Ride from the event&quot;} with @${who}${ride.area ? ` from ${ride.area}` : &quot;&quot;}${leave ? `, leaves ${leave}` : &quot;&quot;}$ …
+        onClick={e =&gt; onOpen(e.currentTarget)}&gt;
+        &lt;span className=&quot;ocarpool-av&quot; aria-hidden=&quot;true&quot;&gt;{ride.driverPhotoUrl ? &lt;img src={ride.driverPhotoUrl} alt=&quot;&quot; loading=&quot;lazy&quot; /&gt; : who.slice(0, 1).toUpperCase()}&lt;/span&gt;
+        &lt;span className=&quot;ocarpool-t&quot;&gt;
+          {ride.area ? &lt;b className=&quot;ocarpool-hood&quot;&gt;{ride.area}&lt;/b&gt; : null}
+          {ride.plan?.meeting ? &lt;span className=&quot;ocarpool-from&quot;&gt;From {ride.plan.meeting}&lt;/span&gt; : null}
+          &lt;span className=&quot;ocarpool-meta&quot;&gt;
+            {leave ? &lt;span&gt;Leaves {leave}&lt;/span&gt; : null}
+            {seats != null ? &lt;span className=&quot;ocarpool-seats&quot;&gt;{seats} SEAT{seats === 1 ? &quot;&quot; : &quot;S&quot;} LEFT&lt;/span&gt; : null}
+          &lt;/span&gt;
+        &lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+/* ridez.css */
+.zridez .zridez-rail .orailcard.orailcard--carpool { flex: 0 0 248px; height: 124px; }
+.zridez .ocarpool {
+  --carpool-c: var(--neon-orange);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 18px 14px 12px;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-hi);
+  background: radial-gradient(120% 90% at 0 0, color-mix(in srgb, var(--carpool-c) 20%, transparent), transparent 62%), var(--fbx-chip-bg, var(--z-black));
+  -webkit-mask: url(&#x27;/boardz/punk/torn-card-wide.svg&#x27;) center / 100% 100% no-repeat;
+  mask: url(&#x27;/boardz/punk/torn-card-wide.svg&#x27;) center / 100% 100% no-repeat;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--carpool-c) 70%, transparent);
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/event-card-open-sheet/client/src/components/events/EventRailCards.tsx#L91">Open on GitHub: client/src/components/events/EventRailCards.tsx (event-card-open-sheet)</a></div></div></div>
+</section><section id="rideneed" class="card-sec">
+<p class="kick">Ridez · PR #115</p><h2>Needs a ride card (wide-short)</h2>
+<dl><dt>Declared size</dt><dd>248x124 (same frame as carpool)</dd><dt>Measured</dt><dd>248x124</dd><dt>Where on the site</dt><dd>Expanded event card, Ridez panel, NEEDS A RIDE list</dd><dt>Component</dt><dd><code>client/src/components/ridez/RidezRail.tsx (RideNeedCard)</code></dd><dt>React 19 + Compiler</dt><dd>On in PR #115: RidezRail, RideNeedCard, RidezFormCard, RidezCircleToggle, RidezWhosComing.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/yescoach-v9-panel-ridez.jpg" width="390" height="844" loading="lazy" alt="Ridez panel with Needs a ride cards. People are example data."><figcaption>Ridez panel with Needs a ride cards. People are example data.</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/ridez/RidezRail.tsx</span><span class="br">event-card-open-sheet</span></div>
+<pre>export function RideNeedCard({ need, onOpen, coming, onComing, onWhosComing }: { need: RideNeed; onOpen?: (el: HTMLElement) =&gt; void; coming?: boolean; onComing?: () =&gt; void; onWhos …
+  const bloom = needBloom(need);
+  const where = need.sameEvent ? &quot;Going to this event&quot; : typeof need.distanceMi === &quot;number&quot; ? `${need.distanceMi &lt; 0.1 ? &quot;&lt;0.1&quot; : need.distanceMi} mi away · right now` : &quot;Nearby · …
+  const dir = need.direction === &quot;departing&quot; ? &quot;Leaving after&quot; : need.direction === &quot;arriving&quot; ? &quot;Getting there&quot; : null;
+  return (
+    &lt;div className=&quot;orailcard orailcard--carpool orailcard--need&quot; data-card-category=&quot;carpool-need&quot; data-tag=&quot;NEEDS A RIDE&quot; data-bloom={bloom}&gt;
+      &lt;span className=&quot;orailcard-tag&quot;&gt;NEEDS A RIDE&lt;/span&gt;
+      &lt;button type=&quot;button&quot; className=&quot;ocarpool&quot; data-card-size=&quot;wide-short&quot; data-need-id={need.id}
+        aria-label={`${need.mine ? &quot;You need&quot; : `@${need.user} needs`} a ride from ${need.area}. ${where}.${bloom === &quot;afterz&quot; ? &quot; Going to your Afterz.&quot; : &quot;&quot;}`}
+        onClick={e =&gt; onOpen?.(e.currentTarget)}&gt;
+        &lt;span className=&quot;ocarpool-av&quot; aria-hidden=&quot;true&quot;&gt;{need.photoUrl ? &lt;img src={need.photoUrl} alt=&quot;&quot; loading=&quot;lazy&quot; /&gt; : need.user.slice(0, 1).toUpperCase()}&lt;/span&gt;
+        &lt;span className=&quot;ocarpool-t&quot;&gt;
+          &lt;b className=&quot;ocarpool-hood&quot;&gt;{need.area}&lt;/b&gt;
+          &lt;span className=&quot;ocarpool-from&quot;&gt;{need.mine ? &quot;You&quot; : `@${need.user}`}{dir ? ` · ${dir}` : &quot;&quot;}&lt;/span&gt;
+          &lt;span className=&quot;ocarpool-meta&quot;&gt;&lt;span className=&quot;ocarpool-near&quot;&gt;{where.toUpperCase()}&lt;/span&gt;&lt;/span&gt;
+        &lt;/span&gt;
+      &lt;/button&gt;</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/event-card-open-sheet/client/src/components/ridez/RidezRail.tsx#L27">Open on GitHub: client/src/components/ridez/RidezRail.tsx (event-card-open-sheet)</a></div></div></div>
+</section><section id="rail-small" class="card-sec">
+<p class="kick">Boardz / Placez in rails · PR #115</p><h2>Event rail small cards (Mizzed, Gigz, Nearby)</h2>
+<dl><dt>Declared size</dt><dd>small 136x170 (--card-small-width/height)</dd><dt>Measured</dt><dd>136x170</dd><dt>Where on the site</dt><dd>Expanded event card rails: Mizzed, Gigz, Nearby restaurants</dd><dt>Component</dt><dd><code>client/src/components/events/EventRailCards.tsx (EventRailCard, EventNearbyPlaceCard)</code></dd><dt>React 19 + Compiler</dt><dd>On in PR #115 (EventRailCards).</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/yescoach-v9-nearby-restaurant-cards.jpg" width="356" height="175" loading="lazy" alt="Nearby restaurants rail, Placez small cards"><figcaption>Nearby restaurants rail, Placez small cards</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/events/EventRailCards.tsx</span><span class="br">event-card-open-sheet</span></div>
+<pre>export function EventRailCard({ post, saved, saveDisabled, onSave, onOpen, tag }: { post: BoardPost; saved?: boolean; saveDisabled?: boolean; onSave?: () =&gt; void; onOpen: (el: HTML …
+  return (
+    &lt;div className=&quot;orailcard&quot; data-card-category={post.category} data-tag={tag || undefined}&gt;
+      {tag ? &lt;span className=&quot;orailcard-tag&quot;&gt;{tag}&lt;/span&gt; : null}
+      &lt;BoardBrowseCard post={post} size=&quot;small&quot; isSaved={saved} saveDisabled={saveDisabled || !onSave} onSave={onSave ?? (() =&gt; {})} onOpen={el =&gt; onOpen(el)} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+/* FlyerBoard.css */
+.fbx .ocard .orail .orailcard,
+:is(.zas,
+.zxp) .zas-rail .orailcard {
+  flex: 0 0 var(--card-small-width);
+  height: var(--card-small-height);
+  position: relative;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/event-card-open-sheet/client/src/components/events/EventRailCards.tsx#L57">Open on GitHub: client/src/components/events/EventRailCards.tsx (event-card-open-sheet)</a></div></div></div>
+</section><section id="placez" class="card-sec">
+<p class="kick">Placez · Live (master)</p><h2>Placez small and wide-map cards</h2>
+<dl><dt>Declared size</dt><dd>small 136x170; wide-map 360x216</dd><dt>Measured</dt><dd>small 136x170; wide-map 346x208 in the 346px phone rail</dd><dt>Where on the site</dt><dd>Placez page (/directory): category rails (e.g. Coffee &amp; conversation) and the Discover rail</dd><dt>Component</dt><dd><code>client/src/components/placez/PlacezQuickCard.tsx via NativePlacezFace.tsx</code></dd><dt>React 19 + Compiler</dt><dd>On (React Compiler, infer mode, master): cards/PlaceCard, NativePlacezFace, PlacezQuickCard, NativePlacezExpanded, ExpandedPager.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/live-placez-small.jpg" width="156" height="190" loading="lazy" alt="Live, Placez small"><figcaption>Live, Placez small</figcaption></figure><figure><img src="img/live-placez-small-rail.jpg" width="354" height="206" loading="lazy" alt="Live, Placez small rail"><figcaption>Live, Placez small rail</figcaption></figure><figure><img src="img/live-placez-wide-map.jpg" width="366" height="227" loading="lazy" alt="Live, Placez wide-map (Discover)"><figcaption>Live, Placez wide-map (Discover)</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/placez/PlacezQuickCard.tsx</span><span class="br">master</span></div>
+<pre> return &lt;article ref={ref} className={`pz-card pz-card--${size}`} aria-label={m.name} style={style} data-motion=&quot;paused&quot; data-calm={motion?&#x27;false&#x27;:&#x27;true&#x27;} data-has-next={hasNext?&#x27;t …
+   {!expanded&amp;&amp;&lt;button type=&quot;button&quot; className=&quot;pz-open-surface&quot; aria-label={`View details for ${m.name}`} onClick={event=&gt;onOpen(root(event))}/&gt;}
+
+/* PlacezQuickCard.css */
+.pz-card--small {
+  width:136px;
+  height:170px;
+  --pz-pad:9px;
+}
+.pz-card--small .pz-art {
+  height:102px;
+}
+.pz-card--wide-map {
+  width:360px;
+  height:216px;
+  --pz-pad:16px;
+}
+.pz-card--wide-map .pz-art {
+  width:100%;
+  height:195px;
+  top:0;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/placez/PlacezQuickCard.tsx#L45">Open on GitHub: client/src/components/placez/PlacezQuickCard.tsx (master)</a></div></div></div>
+</section><section id="scenez" class="card-sec">
+<p class="kick">Scenez · Live (master)</p><h2>Scenez small card</h2>
+<dl><dt>Declared size</dt><dd>small 136x170</dd><dt>Measured</dt><dd>136x170</dd><dt>Where on the site</dt><dd>Scenez page (/scenez): Clubs and other category rails</dd><dt>Component</dt><dd><code>client/src/components/scenez/SceneCardFace.tsx (Closed)</code></dd><dt>React 19 + Compiler</dt><dd>On (React Compiler, infer mode, master): SceneCardFace (Closed). Scenez.tsx page: annotation mode.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/live-scenez-small.jpg" width="156" height="190" loading="lazy" alt="Live, Scenez small"><figcaption>Live, Scenez small</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/scenez/SceneCardFace.tsx</span><span class="br">master</span></div>
+<pre>export function Closed({c,size,on,toggle,open,hide,counters=[]}:any){const scene=!c.page||c.page===&#x27;scenez&#x27;;const next=scene?(c.events||[])[0]:null;return &lt;article className={`pz-c …</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/scenez/SceneCardFace.tsx#L6">Open on GitHub: client/src/components/scenez/SceneCardFace.tsx (master)</a></div></div></div>
+</section><section id="outz" class="card-sec">
+<p class="kick">Outzide · Live (master)</p><h2>Outzide small and wide cards</h2>
+<dl><dt>Declared size</dt><dd>small 136x170; wide 360x216; tall 200x403; square 250x250</dd><dt>Measured</dt><dd>small 136x170; wide 342x205 in the phone rail</dd><dt>Where on the site</dt><dd>Outzide places (/outzide/places): rails and Discover, Destination Picks</dd><dt>Component</dt><dd><code>client/src/components/outz/native/NativeOutzideFace.tsx (OutzClosed)</code></dd><dt>React 19 + Compiler</dt><dd>On (React Compiler, infer mode, master): NativeOutzideFace (OutzClosed). OutzSmallCard, OutzWideCard and TodayLocationCard are off.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/live-outz-small.jpg" width="156" height="190" loading="lazy" alt="Live, Outzide small"><figcaption>Live, Outzide small</figcaption></figure><figure><img src="img/live-outz-wide.jpg" width="362" height="225" loading="lazy" alt="Live, Outzide wide (Destination Picks)"><figcaption>Live, Outzide wide (Destination Picks)</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/outz/native/NativeOutzideFace.tsx</span><span class="br">master</span></div>
+<pre>export function OutzClosed({entry,size=&#x27;square&#x27;,followed=false,onFollow=()=&gt;{},onOpen=()=&gt;{},onDismiss,unread=0,onNotifications=()=&gt;{}}:OutzCardProps){const card=&lt;article className …
+
+/* NativeOutzideFace.css (sizes) */
+.oz-square{width:250px;height:250px}
+.oz-tall{width:200px;height:403px}
+.oz-small{width:136px;height:170px;border-radius:13px}
+
+/* OutzidePlacesPage.css */
+.ol-seasonal-canvas .oz-card {
+  width:360px!important;
+  height:216px!important;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/outz/native/NativeOutzideFace.tsx#L14">Open on GitHub: client/src/components/outz/native/NativeOutzideFace.tsx (master)</a></div></div></div>
+</section><section id="boardz" class="card-sec">
+<p class="kick">Boardz · Live (master)</p><h2>Boardz small card</h2>
+<dl><dt>Declared size</dt><dd>small 136px wide in the grid</dd><dt>Measured</dt><dd>138x171 (zine card with torn rim)</dd><dt>Where on the site</dt><dd>Boardz page (/boardz): Our BoardZ grid</dd><dt>Component</dt><dd><code>client/src/components/board/BoardBrowseCard.tsx + board/punk/PunkBoardCard.jsx</code></dd><dt>React 19 + Compiler</dt><dd>On (React Compiler, infer mode, master): BoardBrowseCard, PunkBoardCard, ZineCard, cards/BoardCard.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/live-boardz-small.jpg" width="158" height="190" loading="lazy" alt="Live, Boardz small"><figcaption>Live, Boardz small</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/board/BoardBrowseCard.tsx</span><span class="br">master</span></div>
+<pre>export default function BoardBrowseCard({post,small=false,size=small?&quot;small&quot;:&quot;wide&quot;,isSaved=false,saveDisabled=false,showStatus=false,onSave,onOpen,style,expanded=false,children}:{ …
+ return &lt;CardMorph name={cardMorphName([&quot;board&quot;, post.category, post.id, size])}&gt;&lt;div className={`boardz-production-card${expanded ? &quot; boardz-production-card--expanded&quot; : &quot;&quot;}`} dat …
+
+/* AllBoards.css */
+.ab-page .ab-card-grid:not(.ab-card-grid--wide) .boardz-production-card {
+  width:136px;
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/components/board/BoardBrowseCard.tsx#L8">Open on GitHub: client/src/components/board/BoardBrowseCard.tsx (master)</a></div></div></div>
+</section><section id="needz" class="card-sec">
+<p class="kick">Needz · Live (master)</p><h2>Needz resource card</h2>
+<dl><dt>Declared size</dt><dd>350px wide, height from content</dd><dt>Measured</dt><dd>350 x 405 to 494 on a 390px phone</dd><dt>Where on the site</dt><dd>Needz page (/needz): Categories grid</dd><dt>Component</dt><dd><code>client/src/pages/Resources.tsx (ResourceCard, wrapped by cards/NeedzCard.tsx)</code></dd><dt>React 19 + Compiler</dt><dd>Off: Resources is outside compiler scope (measured, no consistent win). Uses React.memo.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/live-needz-card.jpg" width="370" height="470" loading="lazy" alt="Live, Needz resource card"><figcaption>Live, Needz resource card</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/pages/Resources.tsx</span><span class="br">master</span></div>
+<pre>export const ResourceCard = memo(function ResourceCard({
+  row,
+  onOpen,
+  size = &quot;tall&quot;,
+}: {
+  row: Row;
+  onOpen: (row: Row) =&gt; void;
+  size?: CardSize;
+}) {
+  const { org } = row;
+  const category = row.sectionCategory ?? row.category;
+  return (
+    &lt;PlaceCard
+      name={org.name}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/master/client/src/pages/Resources.tsx#L458">Open on GitHub: client/src/pages/Resources.tsx (master)</a></div></div></div>
+</section><section id="drawer-mini" class="card-sec">
+<p class="kick">Drawers · PR #116 (not live yet)</p><h2>Drawer mini card (In View rail)</h2>
+<dl><dt>Declared size</dt><dd>148x96</dd><dt>Measured</dt><dd>148x96</dd><dt>Where on the site</dt><dd>Map drawer: In View rail (events and places on the map) and the Events drawer rails</dd><dt>Component</dt><dd><code>client/src/components/drawers/DrawerMiniCard.tsx, places/PlacezInViewRail.tsx</code></dd><dt>React 19 + Compiler</dt><dd>On in PR #116: PlacezInViewRail, DrawerTop, DrawerCountdownCard, DrawerFilterRail, DrawerMiniCard, PlacezCalendarFilter.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/placez-v12-in-view-rail.jpg" width="390" height="844" loading="lazy" alt="PR #116: In View rail in the map drawer"><figcaption>PR #116: In View rail in the map drawer</figcaption></figure><figure><img src="img/placez-v13-map-drawer-top.jpg" width="390" height="844" loading="lazy" alt="PR #116: map drawer top"><figcaption>PR #116: map drawer top</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/places/PlacezInViewRail.tsx</span><span class="br">placez-events-drawers</span></div>
+<pre>export default function PlacezInViewRail({
+  items,
+  onRequireAuth,
+}: {
+  items: InViewItem[];
+  onRequireAuth?: () =&gt; void;
+}) {
+  &quot;use memo&quot;;
+  const rsvp = useEventRsvp();
+  if (!items.length) return null;
+  return (
+    &lt;div className=&quot;pz-drawer-rail&quot; role=&quot;list&quot; aria-label=&quot;In view on the map&quot;&gt;
+      {items.map(item =&gt; (
+        &lt;div className=&quot;pz-drawer-bare&quot; key={`${item.kind}:${item.id}`} role=&quot;listitem&quot;&gt;
+          {item.kind === &quot;event&quot; ? (
+            &lt;DrawerMiniCard
+              event={item.event as DrawerTopEvent}
+              saved={rsvp.myEventIds.has(item.event.id)}
+              onToggleSave={() =&gt; rsvp.toggleRsvp(item.event.id)}
+              onOpen={event =&gt; void centerThenOpenFromDrawer({
+                kind: &quot;event&quot;,
+                id: event.id,
+                title: event.title,
+                lat: event.lat ?? item.event.lat,
+                lng: event.lng ?? item.event.lng,
+              })}
+            /&gt;
+          ) : (
+            &lt;DrawerMiniCard
+              place={{
+
+/* DrawerTop.css */
+.drawer-mini {
+  position: relative;
+  display: block;
+  width: 148px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--c) 50%, transparent);
+  background: var(--z-black);
+  color: var(--text-hi);
+  flex: none;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--c) 50%, transparent), inset 0 -1px 0 color-mix(in srgb, var(--z-black) 55%, transparent);
+  filter: none;
+}
+.drawer-mini .rail-card-share {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 4;
+  width: 34px;
+  min-height: 34px;
+  max-width: 34px;</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/placez-events-drawers/client/src/components/places/PlacezInViewRail.tsx#L13">Open on GitHub: client/src/components/places/PlacezInViewRail.tsx (placez-events-drawers)</a></div></div></div>
+</section><section id="afterz" class="card-sec">
+<p class="kick">Afterz · PR #117 (not live yet)</p><h2>Afterz wide card</h2>
+<dl><dt>Declared size</dt><dd>width 100%; height 112 to 160px; yellow bloom</dd><dt>Measured</dt><dd>Drawer width, about 112px tall</dd><dt>Where on the site</dt><dd>Afterz drawer (Outzide and map), during the approved hours</dd><dt>Component</dt><dd><code>client/src/components/afterz/AfterzNightCard.tsx + AfterzDrawer.css</code></dd><dt>React 19 + Compiler</dt><dd>On in PR #117: AfterzDrawer, AfterzNightCard, AfterzHostForm.</dd></dl>
+<div class="pair"><div class="shots"><figure><img src="img/v4-afterz-drawer-in-window.jpg" width="390" height="844" loading="lazy" alt="PR #117: Afterz drawer in the window. Hosts are example data."><figcaption>PR #117: Afterz drawer in the window. Hosts are example data.</figcaption></figure><figure><img src="img/v4-afterz-needs-a-ride.jpg" width="390" height="844" loading="lazy" alt="PR #117: Afterz with Needs a ride"><figcaption>PR #117: Afterz with Needs a ride</figcaption></figure></div><div class="codes"><div class="code"><div class="code-h"><span>client/src/components/afterz/AfterzNightCard.tsx</span><span class="br">outzide-afterz-drawers</span></div>
+<pre>    &lt;article
+      className=&quot;afterz-wide-card pdx-glass-rebind&quot;
+      style={{ &quot;--c&quot;: &quot;var(--yellow)&quot; } as CSSProperties}
+      data-testid=&quot;afterz-night-card&quot;
+      data-afterz-id={night.id}
+    &gt;
+      &lt;div className=&quot;afterz-wide-card__art&quot; aria-hidden=&quot;true&quot;&gt;
+        {night.poster ? &lt;img src={night.poster} alt=&quot;&quot; /&gt; : null}
+      &lt;/div&gt;
+      &lt;div className=&quot;afterz-wide-card__body&quot;&gt;
+        &lt;div className=&quot;afterz-wide-card__meta&quot;&gt;
+          &lt;span className=&quot;afterz-wide-card__type&quot;&gt;{type}&lt;/span&gt;
+
+/* AfterzDrawer.css */
+.afterz-wide-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  min-height: 112px;
+  max-height: 160px;
+  margin: 0 0 10px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--yellow) 55%, transparent);
+  background: var(--z-black);
+  color: var(--text-hi);
+  box-shadow: var(--neon-bloom, 0 0 18px color-mix(in srgb, var(--yellow) 8%, transparent)),
+    0 0 22px color-mix(in srgb, var(--yellow) 40%, transparent),
+    0 0 48px color-mix(in srgb, var(--yellow) 32%, transparent);
+}</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/outzide-afterz-drawers/client/src/components/afterz/AfterzNightCard.tsx#L39">Open on GitHub: client/src/components/afterz/AfterzNightCard.tsx (outzide-afterz-drawers)</a></div></div></div>
+</section>
+<section id="compiler"><p class="kick">React 19.3.1 · babel-plugin-react-compiler ^1.0.0 · @vitejs/plugin-react 6.2.1</p><h2>React Compiler scope</h2>
+<p>vite.config.ts runs the compiler in infer mode only on the card list below, and in annotation mode on the Events, PlacezBrowse, Scenez, OutzidePlacesPage and HostHub pages. Resources (Needz), shared CardAPI, auth, consent, modal controllers and Mapz stay uncompiled. PR #115 adds the open event card and Ridez modules; PR #116 adds the drawer cards; PR #117 adds the Afterz cards.</p>
+<div class="code"><div class="code-h"><span>script/react-compiler-card-scope.mjs</span><span class="br">event-card-open-sheet</span></div>
+<pre>export const cardFaceModules = [
+  &#x27;events/FlyerBoard&#x27;,
+  &#x27;events/EventFlyerFront&#x27;,
+  &#x27;events/EventRailCard&#x27;,
+  &#x27;events/EventFlyerArt&#x27;,
+  &#x27;home/TonightEventCard&#x27;,
+  &#x27;board/BoardBrowseCard&#x27;,
+  &#x27;board/punk/PunkBoardCard&#x27;,
+  &#x27;board/punk/ZineCard&#x27;,
+];
+
+// Exact Placez presentation scope only. Legacy PlaceDiscoveryCard and
+// TodayLocationCard remain excluded, as do shared API, query adapters and
+// PlaceModal mutation controls. Inclusion is a candidate, not proof of speedup.
+export const placezCompilerModules = [
+  &#x27;cards/PlaceCard&#x27;,
+  &#x27;placez/NativePlacezFace&#x27;,
+  &#x27;placez/PlacezQuickCard&#x27;,
+  &#x27;placez/NativePlacezExpanded&#x27;,
+  &#x27;placez/ExpandedPager&#x27;,
+  &#x27;scenez/SceneCardFace&#x27;,
+  &#x27;outz/native/NativeOutzideFace&#x27;,
+];
+
+/** The open event card and the new card types it opens (Tucker, t321u):
+ * module -&gt; the component functions that must each own a compiler cache.
+ * The legacy EventModal manage view, AuthModal and VenueFollowButton stay out. */
+export const openCardModules = [
+  [&#x27;events/OpenEventCard&#x27;, [&#x27;OpenEventCard&#x27;, &#x27;EventFeedChat&#x27;, &#x27;FlyerViewer&#x27;]],
+  [&#x27;events/OpenCardShare&#x27;, [&#x27;EventSharePopup&#x27;, &#x27;GigInvitePopup&#x27;, &#x27;ShareJoinPrompt&#x27;, &#x27;ShareImagePanel&#x27;]],</pre><a class="gh" href="https://github.com/maxmackpdx-pride/pdx-pride-guide/blob/event-card-open-sheet/script/react-compiler-card-scope.mjs#L10">Open on GitHub: script/react-compiler-card-scope.mjs (event-card-open-sheet)</a></div></section>
+<section id="missing"><h2>Not covered here</h2><ul>
+<li>Placez expanded card and Outzide expanded card: code is cited, no new screenshot taken.</li>
+<li>Event tall, wide and square faces: master has no route that mounts them directly, so there is no live screenshot. The Now rail shot is from PR #115.</li>
+<li>Live zaylist.com would not load the Yes Coach open card in the headless browser ("We couldn't load this event"), so the expanded shots are PR #115 only.</li>
+<li>Flyer-only drawer mini cards (no share button) and full-bleed Afterz photos are still-needed asks, not built yet.</li>
+</ul></section>
+</main><script>
+/* Transcribed from client/src/components/cards/flipCard.ts (PR #115, event-card-open-sheet @ aa73a48b). Only change: SPEED multiplier for slow motion. */
+let SPEED=1;
+function cardMotionOff(){return window.matchMedia("(prefers-reduced-motion: reduce)").matches;}
+function delta(el,origin){const r=el.getBoundingClientRect();const sx=Math.max(0.05,origin.width/Math.max(1,r.width));const sy=Math.max(0.05,origin.height/Math.max(1,r.height));const dx=origin.left+origin.width/2-(r.left+r.width/2);const dy=origin.top+origin.height/2-(r.top+r.height/2);return{sx,sy,dx,dy};}
+const EASE_OPEN="cubic-bezier(.16, 1, .3, 1)";const EASE_CLOSE="cubic-bezier(.55, 0, .7, .2)";const FLIP_MS=420;
+function flipIn(el,origin){if(cardMotionOff()||!origin||!origin.width){return el.animate([{opacity:0},{opacity:1}],{duration:(cardMotionOff()?160:220)*SPEED,easing:"ease-out"});}
+ const {sx,sy,dx,dy}=delta(el,origin);
+ return el.animate([{transform:`perspective(1100px) translate(${dx}px, ${dy}px) scale(${sx}, ${sy}) rotateY(-90deg)`,opacity:0.4},{transform:`perspective(1100px) translate(${dx*0.35}px, ${dy*0.35}px) scale(${(sx+2)/3}, ${(sy+2)/3}) rotateY(-28deg)`,opacity:1,offset:0.55},{transform:"perspective(1100px) none",opacity:1}],{duration:FLIP_MS*SPEED,easing:EASE_OPEN});}
+function flipOut(el,origin,fromY=0){const start=`perspective(1100px) translateY(${fromY}px)`;let anim;
+ if(cardMotionOff()||!origin||!origin.width){anim=el.animate([{transform:start,opacity:1},{transform:start,opacity:0}],{duration:(cardMotionOff()?140:200)*SPEED,easing:"ease-in",fill:"forwards"});}
+ else{const {sx,sy,dx,dy}=delta(el,origin);anim=el.animate([{transform:start,opacity:1},{transform:`perspective(1100px) translate(${dx*0.5}px, ${dy*0.5+fromY*0.5}px) scale(${(sx+1)/2}, ${(sy+1)/2}) rotateY(35deg)`,opacity:1,offset:0.5},{transform:`perspective(1100px) translate(${dx}px, ${dy}px) scale(${sx}, ${sy}) rotateY(90deg)`,opacity:0.2}],{duration:(FLIP_MS-60)*SPEED,easing:EASE_CLOSE,fill:"forwards"});}
+ return anim.finished.then(()=>undefined,()=>undefined);}
+function growIn(box,origin){if(cardMotionOff()||!origin||!origin.width){box.animate([{opacity:0},{opacity:1}],{duration:(cardMotionOff()?160:220)*SPEED,easing:"ease-out"});return;}
+ const {sx,sy,dx,dy}=delta(box,origin);box.animate([{transform:`translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`,opacity:0.3,borderRadius:"12px"},{transform:"none",opacity:1}],{duration:380*SPEED,easing:EASE_OPEN});}
+function growOut(box,origin){const start="translateY(0px)";if(cardMotionOff()||!origin||!origin.width){return box.animate([{transform:start,opacity:1},{transform:start,opacity:0}],{duration:160*SPEED,easing:"ease-in",fill:"forwards"}).finished.then(()=>undefined,()=>undefined);}
+ const {sx,sy,dx,dy}=delta(box,origin);return box.animate([{transform:start,opacity:1},{transform:`translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`,opacity:0}],{duration:320*SPEED,easing:EASE_CLOSE,fill:"forwards"}).finished.then(()=>undefined,()=>undefined);}
+function rectOf(el){const r=el.getBoundingClientRect();return{left:r.left,top:r.top,width:r.width,height:r.height};}
+/* Live master: View Transition morph from react19Card.css (group 280ms cubic-bezier(0.2,0.8,0.2,1), old/new 180ms). */
+function morphIn(el,origin){const {sx,sy,dx,dy}=delta(el,origin);el.animate([{transform:`translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`},{transform:"none"}],{duration:280*SPEED,easing:"cubic-bezier(0.2, 0.8, 0.2, 1)"});el.animate([{opacity:0},{opacity:1}],{duration:180*SPEED,easing:"linear"});}
+function morphOut(el,origin){const {sx,sy,dx,dy}=delta(el,origin);el.animate([{opacity:1},{opacity:0}],{duration:180*SPEED,delay:100*SPEED,fill:"forwards"});return el.animate([{transform:"none"},{transform:`translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`}],{duration:280*SPEED,easing:"cubic-bezier(0.2, 0.8, 0.2, 1)",fill:"forwards"}).finished.then(()=>undefined,()=>undefined);}
+const stage=document.getElementById('stage'),tile=document.getElementById('tile'),sheet=document.getElementById('sheet'),back=document.getElementById('backdrop'),btn=document.getElementById('play'),label=document.getElementById('state');
+let open=false,busy=false;
+function mode(){return document.querySelector('input[name=mode]:checked').value;}
+document.querySelectorAll('input[name=speed]').forEach(r=>r.addEventListener('change',()=>{SPEED=Number(document.querySelector('input[name=speed]:checked').value);}));
+async function toggle(){if(busy)return;busy=true;const m=mode();const o=rectOf(tile);
+ if(!open){sheet.classList.toggle('tilebox',m==='grow');back.hidden=false;sheet.hidden=false;sheet.getAnimations().forEach(a=>a.cancel());
+  back.animate([{opacity:0},{opacity:1}],{duration:200*SPEED,easing:'ease-out'});
+  if(m==='flip')flipIn(sheet,o);else if(m==='grow')growIn(sheet,o);else morphIn(sheet,o);
+  open=true;label.textContent='Open. Tap the blur or the button to close.';btn.textContent='Close card';}
+ else{const done=m==='flip'?flipOut(sheet,o):m==='grow'?growOut(sheet,o):morphOut(sheet,o);back.animate([{opacity:1},{opacity:0}],{duration:300*SPEED,fill:'forwards'});
+  await done;sheet.hidden=true;back.hidden=true;sheet.getAnimations().forEach(a=>a.cancel());back.getAnimations().forEach(a=>a.cancel());open=false;label.textContent='Closed. Tap the Yes Coach flyer or the button.';btn.textContent='Open card';}
+ busy=false;}
+tile.addEventListener('click',toggle);btn.addEventListener('click',toggle);back.addEventListener('click',toggle);
+</script></body></html>
